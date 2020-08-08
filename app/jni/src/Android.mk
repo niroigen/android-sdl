@@ -9,7 +9,7 @@ SDL_PATH := ../SDL
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include $(LOCAL_PATH)/../SDL2_image/
 
 # Add your application source files here...
-LOCAL_SRC_FILES := 53_extensions_and_changing_orientation.cpp
+LOCAL_SRC_FILES := 54_touches.cpp
 
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image
 
