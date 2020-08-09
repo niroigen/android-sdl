@@ -4,7 +4,9 @@
 
 //Using SDL and standard IO
 #include <SDL.h>
+#include <string>
 #include <stdio.h>
+#include "../include/FingerMotionHandler.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 240;
@@ -17,13 +19,13 @@ SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
 
 //The image we will load and show on the screen
-SDL_Surface* gHelloWorld = NULL;
+SDL_Surface* currentImage = NULL;
 
 //Starts up SDL and creates window
 bool init();
 
 //Loads media
-bool loadMedia();
+bool loadMedia(const char *);
 
 // Frees media and shuts down SDL
 void close();
@@ -38,18 +40,40 @@ int main( int argc, char* args[] )
 	else
 	{
 		//Load media
-		if( !loadMedia() )
+		if( !loadMedia("hello.bmp") )
 		{
 			printf( "Failed to load media!\n" );
 		}
 		else
 		{
-			//Apply the image
-			SDL_BlitSurface( gHelloWorld, NULL, gScreenSurface, NULL );
-			//Update the surface
-			SDL_UpdateWindowSurface( gWindow );
-			//Wait two seconds
-			SDL_Delay( 2000 );
+			//Main loop flag
+			bool quit = false;
+
+			//Event handler
+			SDL_Event e;
+
+			//While application is running
+			while( !quit )
+			{
+				//Handle events on queue
+				while( SDL_PollEvent( &e ) != 0 )
+				{
+					//User requests quit
+					if( e.type == SDL_QUIT )
+					{
+						quit = true;
+					}
+					if( e.type == SDL_FINGERMOTION ) {
+						handleFingerMotion(e.tfinger, loadMedia);
+					}
+				}
+
+				//Apply the image
+				SDL_BlitSurface( currentImage, NULL, gScreenSurface, NULL );
+
+				//Update the surface
+				SDL_UpdateWindowSurface( gWindow );
+			}
 		}
 	}
 
@@ -88,14 +112,14 @@ bool init() {
 	return success;
 }
 
-bool loadMedia()
+bool loadMedia(const char* image)
 {
 	//Loading success flag
 	bool success = true;
 
 	//Load splash image
-	gHelloWorld = SDL_LoadBMP( "hello_world.bmp" );
-	if( gHelloWorld == NULL )
+	currentImage = SDL_LoadBMP( image );
+	if( currentImage == NULL )
 	{
 		printf( "Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError() );
 		success = false;
@@ -107,8 +131,8 @@ bool loadMedia()
 void close()
 {
 	//Deallocate surface
-	SDL_FreeSurface( gHelloWorld );
-	gHelloWorld = NULL;
+	SDL_FreeSurface( currentImage );
+	currentImage = NULL;
 
 	//Destroy window
 	SDL_DestroyWindow( gWindow );
