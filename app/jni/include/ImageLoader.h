@@ -6,6 +6,7 @@
 #define ANDROID_PROJECT_IMAGELOADER_H
 
 #include <SDL.h>
+#include <SDL_image.h>
 #include <string>
 
 bool loadMedia(SDL_Surface*&, SDL_Surface*&, const std::string&);

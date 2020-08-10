@@ -26,10 +26,10 @@ SDL_Surface* loadSurface(SDL_Surface*& gScreenSurface, const std::string& path )
 	SDL_Surface* optimizedSurface = NULL;
 
 	//Load image at specified path
-	SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
+	SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
 	if( loadedSurface == NULL )
 	{
-		printf( "Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+		printf( "Unable to load image %s! SDL_Image Error: %s\n", path.c_str(), IMG_GetError() );
 	}
 	else
 	{

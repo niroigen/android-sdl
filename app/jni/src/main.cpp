@@ -49,8 +49,18 @@ bool init() {
 		}
 		else
 		{
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface( gWindow );
+			//Initialize PNG loading
+			int imgFlags = IMG_INIT_PNG;
+			if( !( IMG_Init( imgFlags ) & imgFlags ) )
+			{
+				printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+				success = false;
+			}
+			else
+			{
+				//Get window surface
+				gScreenSurface = SDL_GetWindowSurface( gWindow );
+			}
 		}
 	}
 
@@ -81,7 +91,7 @@ int main( int argc, char* args[] )
 	else
 	{
 		//Load media
-		if( !loadMedia(gStretchedSurface, gScreenSurface, "stretch.bmp") )
+		if( !loadMedia(gStretchedSurface, gScreenSurface, "loaded.png") )
 		{
 			printf( "Failed to load media!\n" );
 		}
