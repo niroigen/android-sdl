@@ -7,6 +7,7 @@
 #include <string>
 #include <stdio.h>
 #include "../include/FingerMotionHandler.h"
+#include "../include/ImageLoader.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 240;
@@ -18,70 +19,14 @@ SDL_Window* gWindow = NULL;
 //The surface contained by the window
 SDL_Surface* gScreenSurface = NULL;
 
-//The image we will load and show on the screen
-SDL_Surface* currentImage = NULL;
+//Current displayed image
+SDL_Surface* gStretchedSurface = NULL;
 
 //Starts up SDL and creates window
 bool init();
 
-//Loads media
-bool loadMedia(const char *);
-
 // Frees media and shuts down SDL
 void close();
-
-int main( int argc, char* args[] )
-{
-	//Start up SDL and create window
-	if( !init() )
-	{
-		printf( "Failed to initialize!\n" );
-	}
-	else
-	{
-		//Load media
-		if( !loadMedia("hello.bmp") )
-		{
-			printf( "Failed to load media!\n" );
-		}
-		else
-		{
-			//Main loop flag
-			bool quit = false;
-
-			//Event handler
-			SDL_Event e;
-
-			//While application is running
-			while( !quit )
-			{
-				//Handle events on queue
-				while( SDL_PollEvent( &e ) != 0 )
-				{
-					//User requests quit
-					if( e.type == SDL_QUIT )
-					{
-						quit = true;
-					}
-					if( e.type == SDL_FINGERMOTION ) {
-						handleFingerMotion(e.tfinger, loadMedia);
-					}
-				}
-
-				//Apply the image
-				SDL_BlitSurface( currentImage, NULL, gScreenSurface, NULL );
-
-				//Update the surface
-				SDL_UpdateWindowSurface( gWindow );
-			}
-		}
-	}
-
-	//Free resources and close SDL
-	close();
-
-	return 0;
-}
 
 bool init() {
 	//Initialization flag
@@ -112,27 +57,11 @@ bool init() {
 	return success;
 }
 
-bool loadMedia(const char* image)
-{
-	//Loading success flag
-	bool success = true;
-
-	//Load splash image
-	currentImage = SDL_LoadBMP( image );
-	if( currentImage == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError() );
-		success = false;
-	}
-
-	return success;
-}
-
 void close()
 {
 	//Deallocate surface
-	SDL_FreeSurface( currentImage );
-	currentImage = NULL;
+	SDL_FreeSurface( gStretchedSurface );
+	gStretchedSurface = NULL;
 
 	//Destroy window
 	SDL_DestroyWindow( gWindow );
@@ -140,4 +69,59 @@ void close()
 
 	//Quit SDL subsystems
 	SDL_Quit();
+}
+
+int main( int argc, char* args[] )
+{
+	//Start up SDL and create window
+	if( !init() )
+	{
+		printf( "Failed to initialize!\n" );
+	}
+	else
+	{
+		//Load media
+		if( !loadMedia(gStretchedSurface, gScreenSurface, "stretch.bmp") )
+		{
+			printf( "Failed to load media!\n" );
+		}
+		else
+		{
+			//Main loop flag
+			bool quit = false;
+
+			//Event handler
+			SDL_Event e;
+
+			//While application is running
+			while( !quit )
+			{
+				//Handle events on queue
+				while( SDL_PollEvent( &e ) != 0 )
+				{
+					//User requests quit
+					if( e.type == SDL_QUIT )
+					{
+						quit = true;
+					}
+				}
+
+				//Apply the image stretched
+				SDL_Rect stretchRect;
+				stretchRect.x = 0;
+				stretchRect.y = 0;
+				stretchRect.w = SCREEN_WIDTH;
+				stretchRect.h = SCREEN_HEIGHT;
+				SDL_BlitScaled( gStretchedSurface, NULL, gScreenSurface, &stretchRect );
+
+				//Update the surface
+				SDL_UpdateWindowSurface( gWindow );
+			}
+		}
+	}
+
+	//Free resources and close SDL
+	close();
+
+	return 0;
 }
